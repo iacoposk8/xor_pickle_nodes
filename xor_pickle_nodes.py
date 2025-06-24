@@ -1,6 +1,7 @@
 import pickle
 import hashlib
 import os
+import zlib  # <--- compressione
 import comfy
 import folder_paths
 
@@ -34,7 +35,6 @@ class LoadXORPickleFromFile:
     CATEGORY = "XOR Pickle"
 
     def load(self, filename, password):
-        # Nessun uso di folder_paths, il percorso è preso direttamente dalla stringa
         if not os.path.exists(filename):
             raise FileNotFoundError(f"File non trovato: {filename}")
 
@@ -42,9 +42,9 @@ class LoadXORPickleFromFile:
             encrypted_data = f.read()
 
         decrypted_data = xor_encrypt(encrypted_data, password)
-        obj = pickle.loads(decrypted_data)
+        decompressed_data = zlib.decompress(decrypted_data)
+        obj = pickle.loads(decompressed_data)
         return (obj,)
-
 
 class SaveXORPickleToFile:
     @classmethod
@@ -65,9 +65,12 @@ class SaveXORPickleToFile:
 
     def save(self, obj, filename, password):
         pickled_data = pickle.dumps(obj)
-        encrypted_data = xor_encrypt(pickled_data, password)
+        compressed_data = zlib.compress(pickled_data)
+        encrypted_data = xor_encrypt(compressed_data, password)
+
         out_path = os.path.join(folder_paths.get_output_directory(), filename)
         with open(out_path, "wb") as f:
             f.write(encrypted_data)
+
         print(f"[XORPickle] Salvato: {out_path}")
         return {}
