@@ -1,6 +1,6 @@
 # 🔐 ComfyUI XOR Text & Pickle Nodes
 
-Two custom nodes for [ComfyUI](https://github.com/comfyanonymous/ComfyUI) that allow you to **encrypt and decrypt Python objects or text** using simple XOR encryption.
+Three custom nodes for [ComfyUI](https://github.com/comfyanonymous/ComfyUI) that allow you to **encrypt and decrypt Python objects or text** using simple XOR encryption.
 
 ## Features
 
