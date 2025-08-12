@@ -1,9 +1,10 @@
 import pickle
 import hashlib
 import os
-import zlib  # <--- compressione
+import zlib 
 import comfy
 import folder_paths
+import json
 
 class AnyType(str):
     def __ne__(self, __value: object) -> bool:
@@ -74,3 +75,39 @@ class SaveXORPickleToFile:
 
         print(f"[XORPickle] Salvato: {out_path}")
         return {}
+
+class DecryptXORText:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                # Campo di input per il testo criptato (stringa esadecimale)
+                "encrypted_text": ("STRING", {"multiline": True}),
+                # Campo di input per la password
+                "password": ("STRING", {"multiline": False}),
+            }
+        }
+
+    RETURN_TYPES = (any_typ,)
+    RETURN_NAMES = ("decrypted_object",)
+    FUNCTION = "decrypt"
+    CATEGORY = "XOR Pickle"
+
+    def decrypt(self, encrypted_text, password):
+        try:
+            # 1. Converte la stringa esadecimale in byte
+            encrypted_bytes = bytes.fromhex(encrypted_text)
+
+            # 2. Decifra i byte usando la stessa funzione XOR
+            decrypted_bytes = xor_encrypt(encrypted_bytes, password)
+
+            # 3. Decodifica i byte in una stringa JSON
+            json_string = decrypted_bytes.decode('utf-8')
+
+            # 4. Parsa la stringa JSON per ottenere l'oggetto Python
+            obj = json.loads(json_string)
+
+            return (obj,)
+        except Exception as e:
+            # In caso di errore (es. password errata), solleva un'eccezione
+            raise Exception(f"Errore durante la decifratura: {e}")
