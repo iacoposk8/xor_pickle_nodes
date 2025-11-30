@@ -137,21 +137,26 @@ app.registerExtension({
             document.head.appendChild(styleSheet);
         }
 
-        const btn = document.createElement("button");
-        btn.textContent = 'Text Crypter';
-        btn.className = 'text-crypter-button comfyui-button comfyui-menu-mobile-collapse primary';
-        
-        const icon = document.createElement("i");
-        icon.className = "fa-solid fa-lock";
-        btn.prepend(icon);
+        try {
+            // new style Manager buttons
+            // unload models button into new style Manager button
+            let cmGroup = new (await import("../../scripts/ui/components/buttonGroup.js")).ComfyButtonGroup(
+                new(await import("../../scripts/ui/components/button.js")).ComfyButton({
+                    icon: "lock",
+                    action: () => {
+                        showModal();
+                    },
+                    tooltip: "Text Crypter",
+                    content: "Text Crypter",
+                    classList: "text-crypter-button comfyui-button comfyui-menu-mobile-collapse primary"
+                }).element
+            );
 
-        const iconStyle = document.createElement("style");
-        iconStyle.innerHTML = `
-            .text-crypter-button i {
-                margin-right: 8px;
-            }
-        `;
-        document.head.appendChild(iconStyle);
+            app.menu?.settingsGroup.element.before(cmGroup.element);
+        }
+        catch(exception) {
+            console.log('ComfyUI is outdated. New style menu based features are disabled.');
+        }
         
         // Memorizza i dati tra le sessioni del modal
         let savedData = {
@@ -253,16 +258,6 @@ app.registerExtension({
                 });
             });
         };
-
-        btn.addEventListener('click', showModal);
-
-        const menu = document.querySelector('#comfyui-body-top .comfyui-menu');
-        const children = menu.children;
-        if (children.length >= 3) {
-            menu.insertBefore(btn, children[children.length - 3]);
-        } else {
-            menu.appendChild(btn);
-        }
     }
 });
 
